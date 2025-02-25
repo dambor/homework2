@@ -9,41 +9,48 @@ def test_logging(logger: tb.SummaryWriter):
     """
     Your code here - finish logging the dummy loss and accuracy
 
-    For training, log the training loss every iteration and the average accuracy every epoch
-    Call the loss 'train_loss' and accuracy 'train_accuracy'
+    For training, log the training loss every iteration and the average accuracy every epoch.
+    Call the loss 'train_loss' and accuracy 'train_accuracy'.
 
-    For validation, log only the average accuracy every epoch
-    Call the accuracy 'val_accuracy'
+    For validation, log only the average accuracy every epoch.
+    Call the accuracy 'val_accuracy'.
 
     Make sure the logging is in the correct spot so the global_step is set correctly,
-    for epoch=0, iteration=0: global_step=0
+    for epoch=0, iteration=0: global_step=0.
     """
-    # strongly simplified training loop
     global_step = 0
     for epoch in range(10):
         metrics = {"train_acc": [], "val_acc": []}
 
-        # example training loop
+        # Training loop
         torch.manual_seed(epoch)
         for iteration in range(20):
             dummy_train_loss = 0.9 ** (epoch + iteration / 20.0)
             dummy_train_accuracy = epoch / 10.0 + torch.randn(10)
 
-            # TODO: log train_loss
-            # TODO: save additional metrics to be averaged
+            # Log train loss at each iteration with the current global step.
+            logger.add_scalar('train_loss', dummy_train_loss, global_step)
+
+            # Save the average training accuracy for this iteration.
+            metrics["train_acc"].append(dummy_train_accuracy.mean())
 
             global_step += 1
 
-        # TODO: log average train_accuracy
+        # Log average training accuracy for the epoch.
+        avg_train_accuracy = torch.stack(metrics["train_acc"]).mean().item()
+        logger.add_scalar('train_accuracy', avg_train_accuracy, global_step)
 
-        # example validation loop
+        # Validation loop
         torch.manual_seed(epoch)
         for _ in range(10):
             dummy_validation_accuracy = epoch / 10.0 + torch.randn(10)
 
-            # TODO: save additional metrics to be averaged
+            # Save the average validation accuracy for this iteration.
+            metrics["val_acc"].append(dummy_validation_accuracy.mean())
 
-        # TODO: log average val_accuracy
+        # Log average validation accuracy for the epoch.
+        avg_val_accuracy = torch.stack(metrics["val_acc"]).mean().item()
+        logger.add_scalar('val_accuracy', avg_val_accuracy, global_step)
 
 
 if __name__ == "__main__":
